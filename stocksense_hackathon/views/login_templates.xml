@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <template id="stocksense_login_layout" inherit_id="web.login_layout" name="StockSense TrueStock Landing &amp; Login Page">
-        <xpath expr="//img[@alt='Logo']" position="replace">
-            <div class="mb-3 d-flex justify-content-center">
-                <img src="/stocksense_hackathon/static/src/img/stocksense_logo.png" 
-                     alt="StockSense by TrueStock Co." 
-                     style="max-height: 85px; max-width: 90%; width: auto; object-fit: contain;"/>
-            </div>
-            <div class="badge bg-primary text-uppercase px-3 py-1 mb-2" style="letter-spacing: 0.08em; font-size: 11px;">
-                TrueStock Co.
-            </div>
-            <div class="text-secondary small fw-semibold">
-                Autonomous Inventory Intelligence &amp; Zero-Trust Security
+        <xpath expr="//div[hasclass('card-body')]/div[1]" position="replace">
+            <div class="text-center pb-3 border-bottom mb-4">
+                <div class="mb-3 d-flex justify-content-center">
+                    <img src="/stocksense_hackathon/static/src/img/stocksense_logo.png" 
+                         alt="StockSense by TrueStock Co." 
+                         style="max-height: 85px; max-width: 90%; width: auto; object-fit: contain;"/>
+                </div>
+                <div class="badge bg-primary text-uppercase px-3 py-1 mb-2" style="letter-spacing: 0.08em; font-size: 11px;">
+                    TrueStock Co.
+                </div>
+                <div class="text-secondary small fw-semibold">
+                    Autonomous Inventory Intelligence &amp; Zero-Trust Security
+                </div>
             </div>
         </xpath>
     </template>
