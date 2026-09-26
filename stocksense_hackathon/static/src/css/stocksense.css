@@ -874,7 +874,12 @@ body.bg-100 {
     min-height: 100vh;
 }
 
-body.bg-100 .card.o_database_list {
+body.bg-100 .card {
+    max-width: 440px !important;
+    border-radius: 18px !important;
+    box-shadow: 0 25px 35px -5px rgba(15, 23, 42, 0.25), 0 10px 10px -5px rgba(15, 23, 42, 0.05) !important;
+    background: #ffffff !important;
+    overflow: hidden !important;
     border: 1px solid rgba(255, 255, 255, 0.2) !important;
 }
 

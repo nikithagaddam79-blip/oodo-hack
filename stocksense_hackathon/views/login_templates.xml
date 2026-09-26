@@ -1,32 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <template id="stocksense_login_layout" inherit_id="web.login_layout" name="StockSense TrueStock Landing &amp; Login Page">
-        <!-- Upgrade card max-width and style -->
-        <xpath expr="//div[hasclass('o_database_list')]" position="attributes">
-            <attribute name="style">max-width: 440px; border-radius: 18px; box-shadow: 0 25px 35px -5px rgba(15, 23, 42, 0.2), 0 10px 10px -5px rgba(15, 23, 42, 0.05); background: #ffffff !important; overflow: hidden;</attribute>
-        </xpath>
-
-        <!-- Replace logo with StockSense TrueStock Logo -->
-        <xpath expr="//div[hasclass('card-body')]//div[hasclass('text-center')][hasclass('border-bottom')]" position="replace">
-            <div class="text-center pb-3 border-bottom mb-4">
-                <div class="mb-3 d-flex justify-content-center">
-                    <img src="/stocksense_hackathon/static/src/img/stocksense_logo.png" 
-                         alt="StockSense by TrueStock Co." 
-                         style="max-height: 80px; max-width: 90%; width: auto; object-fit: contain;"/>
-                </div>
-                <div class="badge bg-primary text-uppercase px-3 py-1 mb-2" style="letter-spacing: 0.08em; font-size: 11px;">
-                    TrueStock Co.
-                </div>
-                <div class="text-secondary small fw-semibold">
-                    Autonomous Inventory Intelligence &amp; Zero-Trust Security
-                </div>
+        <xpath expr="//img[@alt='Logo']" position="replace">
+            <div class="mb-3 d-flex justify-content-center">
+                <img src="/stocksense_hackathon/static/src/img/stocksense_logo.png" 
+                     alt="StockSense by TrueStock Co." 
+                     style="max-height: 85px; max-width: 90%; width: auto; object-fit: contain;"/>
             </div>
-        </xpath>
-
-        <!-- Add demo credentials quick hint before footer -->
-        <xpath expr="//div[hasclass('text-center')][hasclass('border-top')]" position="before">
-            <div class="p-2 rounded-3 bg-light border text-center small text-muted my-3">
-                <i class="fa fa-key text-primary me-1"/> Demo Credentials: <strong>admin</strong> / <strong>admin</strong>
+            <div class="badge bg-primary text-uppercase px-3 py-1 mb-2" style="letter-spacing: 0.08em; font-size: 11px;">
+                TrueStock Co.
+            </div>
+            <div class="text-secondary small fw-semibold">
+                Autonomous Inventory Intelligence &amp; Zero-Trust Security
             </div>
         </xpath>
     </template>
