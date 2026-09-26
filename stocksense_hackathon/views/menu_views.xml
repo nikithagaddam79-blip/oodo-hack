@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Top Level Menu -->
+        <menuitem id="menu_stocksense_root"
+                  name="StockSense"
+                  web_icon="stocksense_hackathon,static/description/icon.png"
+                  sequence="25"/>
+
+        <!-- 1. Dashboard -->
+        <menuitem id="menu_stocksense_dashboard"
+                  name="Dashboard"
+                  parent="menu_stocksense_root"
+                  action="action_stocksense_dashboard"
+                  sequence="1"/>
+
+        <!-- 2. Watchlist -->
+        <menuitem id="menu_stocksense_watchlist"
+                  name="Watchlist"
+                  parent="menu_stocksense_root"
+                  action="action_stocksense_watchlist"
+                  sequence="2"/>
+
+        <!-- 3. Inventory Security / Adjustments -->
+        <menuitem id="menu_stocksense_adjustments"
+                  name="Adjustments"
+                  parent="menu_stocksense_root"
+                  sequence="3"/>
+
+        <menuitem id="menu_stocksense_adjustment_pending"
+                  name="Pending Approvals"
+                  parent="menu_stocksense_adjustments"
+                  action="action_stocksense_adjustment_pending"
+                  sequence="1"/>
+
+        <menuitem id="menu_stocksense_adjustment_all"
+                  name="All Adjustments"
+                  parent="menu_stocksense_adjustments"
+                  action="action_stocksense_adjustment"
+                  sequence="2"/>
+
+        <!-- 4. Configuration -->
+        <menuitem id="menu_stocksense_config"
+                  name="Configuration"
+                  parent="menu_stocksense_root"
+                  groups="stocksense_hackathon.group_stocksense_manager"
+                  sequence="10"/>
+
+        <menuitem id="menu_stocksense_rules"
+                  name="Rule Thresholds"
+                  parent="menu_stocksense_config"
+                  action="action_stocksense_rule_config"
+                  sequence="1"/>
+
+        <menuitem id="menu_stocksense_baselines"
+                  name="Statistical Baselines"
+                  parent="menu_stocksense_config"
+                  action="action_stocksense_baseline"
+                  sequence="2"/>
+    </data>
+</odoo>

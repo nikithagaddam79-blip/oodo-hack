@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- 1. Partner: Vendor Alpha -->
+        <record id="partner_vendor_alpha" model="res.partner">
+            <field name="name">Vendor Alpha</field>
+            <field name="email">orders@vendoralpha.com</field>
+            <field name="is_company">True</field>
+        </record>
+
+        <!-- 2. Products -->
+        <record id="product_steel_rods" model="product.product">
+            <field name="name">Steel Rods</field>
+            <field name="default_code">STEEL-01</field>
+            <field name="type">product</field>
+            <field name="list_price">45.0</field>
+            <field name="standard_price">28.0</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+        </record>
+
+        <record id="product_office_chairs" model="product.product">
+            <field name="name">Office Chairs</field>
+            <field name="default_code">CHAIR-01</field>
+            <field name="type">product</field>
+            <field name="list_price">150.0</field>
+            <field name="standard_price">85.0</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+        </record>
+
+        <record id="product_wooden_desks" model="product.product">
+            <field name="name">Wooden Desks</field>
+            <field name="default_code">DESK-01</field>
+            <field name="type">product</field>
+            <field name="list_price">320.0</field>
+            <field name="standard_price">180.0</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+        </record>
+
+        <record id="product_metal_sheets" model="product.product">
+            <field name="name">Metal Sheets</field>
+            <field name="default_code">SHEET-01</field>
+            <field name="type">product</field>
+            <field name="list_price">60.0</field>
+            <field name="standard_price">35.0</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+        </record>
+
+        <record id="product_bolts" model="product.product">
+            <field name="name">Bolts</field>
+            <field name="default_code">BOLT-01</field>
+            <field name="type">product</field>
+            <field name="list_price">1.5</field>
+            <field name="standard_price">0.5</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+        </record>
+
+        <!-- 3. Warehouse Sub-locations -->
+        <record id="location_rack_a" model="stock.location">
+            <field name="name">Rack A</field>
+            <field name="location_id" ref="stock.stock_location_stock"/>
+            <field name="usage">internal</field>
+        </record>
+
+        <record id="location_rack_b" model="stock.location">
+            <field name="name">Rack B</field>
+            <field name="location_id" ref="stock.stock_location_stock"/>
+            <field name="usage">internal</field>
+        </record>
+
+        <record id="location_rack_c" model="stock.location">
+            <field name="name">Rack C</field>
+            <field name="location_id" ref="stock.stock_location_stock"/>
+            <field name="usage">internal</field>
+        </record>
+
+        <record id="location_production_floor" model="stock.location">
+            <field name="name">Production Floor</field>
+            <field name="location_id" ref="stock.stock_location_stock"/>
+            <field name="usage">internal</field>
+        </record>
+
+        <!-- 4. Default Rule Configurations -->
+        <record id="rule_config_shrinkage" model="stocksense.rule.config">
+            <field name="name">Shrinkage Anomaly Detection</field>
+            <field name="rule_type">shrinkage_anomaly</field>
+            <field name="sensitivity_threshold">3.0</field>
+            <field name="min_sample_size">10</field>
+            <field name="active" eval="True"/>
+        </record>
+
+        <record id="rule_config_delay" model="stocksense.rule.config">
+            <field name="name">Operation Delay Risk Detection</field>
+            <field name="rule_type">delay_risk</field>
+            <field name="sensitivity_threshold">2.5</field>
+            <field name="min_sample_size">5</field>
+            <field name="active" eval="True"/>
+        </record>
+
+        <record id="rule_config_variance" model="stocksense.rule.config">
+            <field name="name">Stock Variance Anomaly Detection</field>
+            <field name="rule_type">stock_variance</field>
+            <field name="sensitivity_threshold">3.0</field>
+            <field name="min_sample_size">10</field>
+            <field name="active" eval="True"/>
+        </record>
+
+        <!-- 5. Baseline Statistics for Demo Anomaly -->
+        <!-- Product: Steel Rods, Location: Rack B, Mean: -3, Std: 1.5, Samples: 120 -->
+        <record id="baseline_steel_rods_rack_b" model="stocksense.baseline.stat">
+            <field name="product_id" ref="product_steel_rods"/>
+            <field name="location_id" ref="location_rack_b"/>
+            <field name="metric_type">adjustment_magnitude</field>
+            <field name="mean_value">-3.0</field>
+            <field name="std_value">1.5</field>
+            <field name="sample_count">120</field>
+            <field name="active" eval="True"/>
+        </record>
+
+        <!-- Turnaround baseline: Mean = 4.0 hours, Std = 1.5 hours -->
+        <record id="baseline_processing_time" model="stocksense.baseline.stat">
+            <field name="metric_type">processing_time</field>
+            <field name="mean_value">4.0</field>
+            <field name="std_value">1.5</field>
+            <field name="sample_count">50</field>
+            <field name="active" eval="True"/>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="stocksense.StewardDashboard">
+        <div class="ss-dashboard-wrapper">
+            <!-- Modern Hero Header -->
+            <div class="ss-dashboard-hero">
+                <div class="d-flex align-items-center gap-4">
+                    <img src="/stocksense_hackathon/static/src/img/stocksense_logo.png" 
+                         alt="TrueStock Co. - StockSense" 
+                         style="max-height: 54px; background: rgba(255,255,255,0.95); padding: 6px 14px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"/>
+                    <div>
+                        <div class="ss-hero-badge mb-1">
+                            <span>TrueStock Co. • Autonomous Inventory Intelligence</span>
+                        </div>
+                        <h1>StockSense Steward Dashboard</h1>
+                        <p>Continuous statistical surveillance, ambient voice operations, and zero-trust inventory protection.</p>
+                    </div>
+                </div>
+                <div class="d-flex gap-3 align-items-center">
+                    <button class="ss-btn-hero-secondary" t-on-click="fetchData">
+                        <i class="fa fa-refresh" t-att-class="{'fa-spin': state.isLoading}"/> Refresh
+                    </button>
+                    <button class="ss-btn-hero-primary" t-on-click="runStewardNow" t-att-disabled="state.isRunningSteward">
+                        <t t-if="state.isRunningSteward">
+                            <i class="fa fa-spinner fa-spin"/> Auditing Inventory...
+                        </t>
+                        <t t-else="">
+                            <i class="fa fa-play"/> Run Steward Now
+                        </t>
+                    </button>
+                </div>
+            </div>
+
+            <!-- KPI Metric Summary Grid -->
+            <div class="ss-kpi-grid">
+                <div class="ss-kpi-card accent">
+                    <div class="ss-kpi-info">
+                        <span class="ss-kpi-title">Total Products</span>
+                        <span class="ss-kpi-value"><t t-esc="state.kpis.total_products"/></span>
+                    </div>
+                    <div class="ss-kpi-icon-wrap">
+                        <i class="fa fa-cube"/>
+                    </div>
+                </div>
+
+                <div class="ss-kpi-card">
+                    <div class="ss-kpi-info">
+                        <span class="ss-kpi-title">Total Stock Units</span>
+                        <span class="ss-kpi-value"><t t-esc="state.kpis.total_stock"/></span>
+                    </div>
+                    <div class="ss-kpi-icon-wrap">
+                        <i class="fa fa-cubes"/>
+                    </div>
+                </div>
+
+                <div class="ss-kpi-card">
+                    <div class="ss-kpi-info">
+                        <span class="ss-kpi-title">Pending Operations</span>
+                        <span class="ss-kpi-value"><t t-esc="state.kpis.pending_ops"/></span>
+                    </div>
+                    <div class="ss-kpi-icon-wrap">
+                        <i class="fa fa-exchange"/>
+                    </div>
+                </div>
+
+                <div class="ss-kpi-card" t-att-class="{'warning': state.kpis.low_stock_items > 0}">
+                    <div class="ss-kpi-info">
+                        <span class="ss-kpi-title">Low Stock Items</span>
+                        <span class="ss-kpi-value"><t t-esc="state.kpis.low_stock_items"/></span>
+                    </div>
+                    <div class="ss-kpi-icon-wrap">
+                        <i class="fa fa-exclamation-triangle"/>
+                    </div>
+                </div>
+
+                <div class="ss-kpi-card" t-att-class="{'warning': state.kpis.steward_alerts > 0}">
+                    <div class="ss-kpi-info">
+                        <span class="ss-kpi-title">Steward Alerts</span>
+                        <span class="ss-kpi-value"><t t-esc="state.kpis.steward_alerts"/></span>
+                    </div>
+                    <div class="ss-kpi-icon-wrap">
+                        <i class="fa fa-bell"/>
+                    </div>
+                </div>
+
+                <div class="ss-kpi-card" t-att-class="{'critical': state.kpis.critical_alerts > 0}">
+                    <div class="ss-kpi-info">
+                        <span class="ss-kpi-title">Critical Anomalies</span>
+                        <span class="ss-kpi-value"><t t-esc="state.kpis.critical_alerts"/></span>
+                    </div>
+                    <div class="ss-kpi-icon-wrap">
+                        <i class="fa fa-fire"/>
+                    </div>
+                </div>
+
+                <div class="ss-kpi-card purple" t-att-class="{'warning': state.kpis.delayed_ops > 0}">
+                    <div class="ss-kpi-info">
+                        <span class="ss-kpi-title">Delayed Operations</span>
+                        <span class="ss-kpi-value"><t t-esc="state.kpis.delayed_ops"/></span>
+                    </div>
+                    <div class="ss-kpi-icon-wrap">
+                        <i class="fa fa-clock-o"/>
+                    </div>
+                </div>
+
+                <div class="ss-kpi-card" t-att-class="{'critical': state.kpis.pending_reviews > 0}">
+                    <div class="ss-kpi-info">
+                        <span class="ss-kpi-title">Security Interceptions</span>
+                        <span class="ss-kpi-value"><t t-esc="state.kpis.pending_reviews"/></span>
+                    </div>
+                    <div class="ss-kpi-icon-wrap">
+                        <i class="fa fa-lock"/>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Two-Column Workspace -->
+            <div class="row g-4">
+                <!-- Left Column: Active Watchlist -->
+                <div class="col-lg-8">
+                    <div class="ss-section-card">
+                        <div class="ss-section-header">
+                            <h3>
+                                <i class="fa fa-crosshairs text-primary"/> Active Anomaly Watchlist
+                            </h3>
+                            <span class="ss-badge-count">
+                                <t t-esc="state.watchlist.length"/> Active Signals
+                            </span>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="ss-table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Severity</th>
+                                        <th>Target / Operation</th>
+                                        <th>Location</th>
+                                        <th>Risk Score</th>
+                                        <th>Deviation (Z)</th>
+                                        <th>Status</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-if="state.watchlist.length === 0">
+                                        <tr>
+                                            <td colspan="7" class="text-center py-5 text-muted">
+                                                <i class="fa fa-check-circle-o fa-3x mb-3 text-success d-block"/>
+                                                <div class="fw-bold fs-6 text-dark">No Active Anomalies Detected</div>
+                                                <span class="small">All warehouse operations and inventory movements are within standard statistical tolerances.</span>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                    <t t-foreach="state.watchlist" t-as="item" t-key="item.id">
+                                        <tr>
+                                            <td>
+                                                <span t-att-class="'ss-badge ss-badge-' + item.severity">
+                                                    <t t-esc="item.severity"/>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="fw-bold text-dark"><t t-esc="item.name"/></div>
+                                                <span class="text-muted small"><t t-esc="item.product_name"/></span>
+                                            </td>
+                                            <td>
+                                                <span class="text-secondary small fw-semibold"><t t-esc="item.location_name"/></span>
+                                            </td>
+                                            <td>
+                                                <div class="ss-risk-meter">
+                                                    <span><t t-esc="item.score"/></span>
+                                                    <div class="ss-risk-bar-bg">
+                                                        <div t-att-class="'ss-risk-bar-fill ' + item.severity" t-att-style="'width: ' + item.score + '%;'"/>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span t-att-class="item.z_score >= 3.0 ? 'ss-z-chip high' : 'ss-z-chip'">
+                                                    <t t-esc="item.z_score"/>σ
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge rounded-pill bg-light text-secondary border text-capitalize px-2 py-1">
+                                                    <t t-esc="item.state"/>
+                                                </span>
+                                            </td>
+                                            <td class="text-end">
+                                                <button class="btn btn-sm btn-outline-primary me-2 px-3 fw-bold" 
+                                                        t-on-click="() => this.openExplainModal(item)"
+                                                        title="Explain Statistical Calculation">
+                                                    <i class="fa fa-search me-1"/> Explain
+                                                </button>
+                                                <button class="btn btn-sm btn-light border text-secondary" 
+                                                        t-on-click="() => this.createRecountTask(item.id)"
+                                                        title="Schedule Cycle Recount Activity">
+                                                    <i class="fa fa-tasks"/> Recount
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Pending Security Interceptions -->
+                <div class="col-lg-4">
+                    <div class="ss-section-card">
+                        <div class="ss-section-header">
+                            <h3>
+                                <i class="fa fa-shield text-danger"/> Security Gate
+                            </h3>
+                            <span class="ss-badge-count danger">
+                                <t t-esc="state.adjustments.length"/> Intercepted
+                            </span>
+                        </div>
+                        <div class="p-3">
+                            <t t-if="state.adjustments.length === 0">
+                                <div class="text-center py-5 text-muted">
+                                    <i class="fa fa-lock fa-3x mb-3 text-muted d-block" style="opacity: 0.4;"/>
+                                    <div class="fw-bold text-dark">Zero Pending Interceptions</div>
+                                    <span class="small">Suspicious negative adjustments or shrinkage outliers will be isolated here for manager authorization.</span>
+                                </div>
+                            </t>
+                            <t t-foreach="state.adjustments" t-as="adj" t-key="adj.id">
+                                <div class="ss-interception-card">
+                                    <div class="ss-header">
+                                        <div>
+                                            <div class="fw-bold text-dark fs-6"><t t-esc="adj.product_name"/></div>
+                                            <span class="text-muted small"><i class="fa fa-map-marker me-1"/> <t t-esc="adj.location_name"/></span>
+                                        </div>
+                                        <span class="ss-badge ss-badge-critical">
+                                            <t t-esc="adj.quantity_change"/> units
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="d-flex align-items-center gap-2 mt-2">
+                                        <span class="ss-z-chip high"><t t-esc="adj.z_score"/>σ deviation</span>
+                                        <span class="badge bg-danger-subtle text-danger fw-bold">Risk: <t t-esc="adj.risk_score"/>/100</span>
+                                    </div>
+
+                                    <div class="ss-reason-box">
+                                        <i class="fa fa-info-circle me-1 text-danger"/>
+                                        <t t-esc="adj.explanation"/>
+                                    </div>
+
+                                    <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                                        <span class="small text-muted">By: <strong><t t-esc="adj.requested_by"/></strong></span>
+                                        <div class="d-flex gap-2">
+                                            <button class="ss-btn-reject" t-on-click="() => this.rejectAdjustment(adj.id)">
+                                                Reject
+                                            </button>
+                                            <button class="ss-btn-approve" t-on-click="() => this.approveAdjustment(adj.id)">
+                                                <i class="fa fa-check me-1"/> Approve &amp; Apply
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- "Why Was This Flagged?" Explainability Modal -->
+            <div t-if="state.selectedExplainItem" class="ss-modal-overlay">
+                <div class="ss-modal-container">
+                    <div class="ss-modal-header">
+                        <h4>
+                            <i class="fa fa-calculator text-primary"/> Statistical Intelligence Audit
+                        </h4>
+                        <span class="ss-brand-badge">Deterministic Proof</span>
+                        <button class="btn btn-sm btn-link text-white text-decoration-none" t-on-click="closeExplainModal">
+                            <i class="fa fa-times fa-lg"/>
+                        </button>
+                    </div>
+                    <div class="ss-modal-body">
+                        <!-- Top Metadata -->
+                        <div class="mb-4">
+                            <div class="fs-5 fw-bold text-dark mb-1">
+                                <t t-esc="state.selectedExplainItem.name"/>
+                            </div>
+                            <div class="text-muted small">
+                                Product: <strong><t t-esc="state.selectedExplainItem.product_name"/></strong> | Location: <strong><t t-esc="state.selectedExplainItem.location_name"/></strong>
+                            </div>
+                        </div>
+
+                        <!-- Statistical Metric Pills -->
+                        <div class="ss-metric-pills">
+                            <div class="ss-metric-pill highlight">
+                                <span class="label">Z-Score Deviation</span>
+                                <span class="value"><t t-esc="state.selectedExplainItem.z_score"/>σ</span>
+                            </div>
+                            <div class="ss-metric-pill highlight">
+                                <span class="label">Risk Score</span>
+                                <span class="value"><t t-esc="state.selectedExplainItem.score"/>/100</span>
+                            </div>
+                            <div class="ss-metric-pill">
+                                <span class="label">Baseline Mean (μ)</span>
+                                <span class="value"><t t-esc="state.selectedExplainItem.baseline_mean"/></span>
+                            </div>
+                            <div class="ss-metric-pill">
+                                <span class="label">Std Dev (σ)</span>
+                                <span class="value"><t t-esc="state.selectedExplainItem.baseline_std"/></span>
+                            </div>
+                            <div class="ss-metric-pill">
+                                <span class="label">Actual Observed</span>
+                                <span class="value"><t t-esc="state.selectedExplainItem.actual_value"/></span>
+                            </div>
+                        </div>
+
+                        <!-- Mathematical Evidence Box -->
+                        <div class="ss-steward-alert-box mb-4">
+                            <div class="ss-alert-title">
+                                <i class="fa fa-terminal"/>
+                                <span>Mathematical Audit Trail</span>
+                            </div>
+                            <div class="ss-alert-evidence">
+                                <t t-esc="state.selectedExplainItem.evidence"/>
+                            </div>
+                        </div>
+
+                        <!-- Action Context -->
+                        <div class="p-3 bg-light rounded-3 border mb-4">
+                            <div class="fw-bold text-uppercase fs-7 text-secondary mb-1">Recommended Warehouse Protocol</div>
+                            <div class="text-danger fw-bold small">
+                                <i class="fa fa-bullhorn me-1"/> <t t-esc="state.selectedExplainItem.recommended_action"/>
+                            </div>
+                        </div>
+
+                        <!-- Feedback Loop Bar -->
+                        <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="small fw-semibold text-muted">Feedback:</span>
+                                <button class="btn btn-sm btn-outline-success" t-on-click="() => this.submitFeedback(state.selectedExplainItem.id, 'true_positive')">
+                                    <i class="fa fa-thumbs-up me-1"/> True Positive (-0.1σ)
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" t-on-click="() => this.submitFeedback(state.selectedExplainItem.id, 'false_positive')">
+                                    <i class="fa fa-thumbs-down me-1"/> False Positive (+0.2σ)
+                                </button>
+                            </div>
+                            <button class="btn btn-secondary px-4 fw-bold" t-on-click="closeExplainModal">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </t>
+
+</templates>

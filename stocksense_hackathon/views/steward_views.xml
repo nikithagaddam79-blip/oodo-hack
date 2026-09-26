@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- ========================================== -->
+        <!-- 1. WATCHLIST ITEM VIEWS                    -->
+        <!-- ========================================== -->
+        <record id="view_stocksense_watchlist_tree" model="ir.ui.view">
+            <field name="name">stocksense.watchlist.item.tree</field>
+            <field name="model">stocksense.watchlist.item</field>
+            <field name="arch" type="xml">
+                <tree string="StockSense Watchlist" decoration-danger="severity == 'critical'" decoration-warning="severity == 'high'" decoration-info="severity == 'attention'">
+                    <field name="create_date" string="Detected On"/>
+                    <field name="name"/>
+                    <field name="product_id"/>
+                    <field name="location_id"/>
+                    <field name="rule_type"/>
+                    <field name="actual_value"/>
+                    <field name="baseline_mean"/>
+                    <field name="z_score"/>
+                    <field name="score" widget="progressbar"/>
+                    <field name="severity" widget="badge" decoration-danger="severity == 'critical'" decoration-warning="severity == 'high'" decoration-info="severity == 'attention'"/>
+                    <field name="state" widget="badge" decoration-success="state == 'resolved'" decoration-muted="state == 'dismissed'"/>
+                    <field name="feedback" widget="badge"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_stocksense_watchlist_form" model="ir.ui.view">
+            <field name="name">stocksense.watchlist.item.form</field>
+            <field name="model">stocksense.watchlist.item</field>
+            <field name="arch" type="xml">
+                <form string="Watchlist Alert">
+                    <header>
+                        <button name="action_acknowledge" string="Acknowledge" type="object" invisible="state != 'new'" class="btn-primary"/>
+                        <button name="action_create_recount_activity" string="Schedule Recount Task" type="object" class="btn-secondary" icon="fa-check-square-o"/>
+                        <button name="action_escalate" string="Escalate" type="object" invisible="state not in ['new', 'acknowledged']" class="btn-warning"/>
+                        <button name="action_resolve" string="Mark Resolved" type="object" invisible="state in ['resolved', 'dismissed']" class="btn-success"/>
+                        <button name="action_dismiss" string="Dismiss" type="object" invisible="state in ['resolved', 'dismissed']" class="btn-secondary"/>
+                        
+                        <button name="action_feedback_true_positive" string="Confirm (True Positive)" type="object" invisible="feedback != 'none'" class="btn-outline-success"/>
+                        <button name="action_feedback_false_positive" string="Dismiss (False Positive)" type="object" invisible="feedback != 'none'" class="btn-outline-danger"/>
+                        
+                        <field name="state" widget="statusbar" statusbar_visible="new,acknowledged,escalated,resolved"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <span class="o_form_label">StockSense Intelligence Alert</span>
+                            <h1><field name="name" placeholder="Alert Description"/></h1>
+                        </div>
+                        <group>
+                            <group string="Target Context">
+                                <field name="rule_type"/>
+                                <field name="product_id"/>
+                                <field name="location_id"/>
+                                <field name="assigned_user_id"/>
+                            </group>
+                            <group string="Statistical Anomaly Breakdown">
+                                <field name="score"/>
+                                <field name="severity" widget="badge" decoration-danger="severity == 'critical'" decoration-warning="severity == 'high'" decoration-info="severity == 'attention'"/>
+                                <field name="z_score"/>
+                                <field name="actual_value"/>
+                                <field name="baseline_mean"/>
+                                <field name="baseline_std"/>
+                                <field name="feedback"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Why Was This Flagged? (Evidence)">
+                                <group>
+                                    <field name="explanation" nolabel="1" readonly="1" widget="text"/>
+                                </group>
+                                <separator string="Statistical Proof"/>
+                                <group>
+                                    <field name="evidence" nolabel="1" readonly="1" widget="text"/>
+                                </group>
+                            </page>
+                            <page string="Recommended Action">
+                                <group>
+                                    <field name="recommended_action" nolabel="1" readonly="1" widget="text"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_stocksense_watchlist" model="ir.actions.act_window">
+            <field name="name">Watchlist</field>
+            <field name="res_model">stocksense.watchlist.item</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    No active anomalies detected!
+                </p>
+                <p>
+                    StockSense Steward watches continuously over inventory movements and flags statistically abnormal events.
+                </p>
+            </field>
+        </record>
+
+        <!-- ========================================== -->
+        <!-- 2. ADJUSTMENT REQUEST VIEWS                -->
+        <!-- ========================================== -->
+        <record id="view_stocksense_adjustment_tree" model="ir.ui.view">
+            <field name="name">stocksense.adjustment.request.tree</field>
+            <field name="model">stocksense.adjustment.request</field>
+            <field name="arch" type="xml">
+                <tree string="Adjustment Requests" decoration-danger="state == 'pending_approval' and severity == 'critical'" decoration-warning="state == 'pending_approval'">
+                    <field name="name"/>
+                    <field name="create_date" string="Requested"/>
+                    <field name="product_id"/>
+                    <field name="location_id"/>
+                    <field name="quantity_change"/>
+                    <field name="current_quantity"/>
+                    <field name="new_quantity"/>
+                    <field name="z_score"/>
+                    <field name="risk_score" widget="progressbar"/>
+                    <field name="severity" widget="badge"/>
+                    <field name="state" widget="badge" decoration-danger="state == 'pending_approval'" decoration-success="state == 'approved'" decoration-muted="state == 'rejected'"/>
+                    <field name="requested_by"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_stocksense_adjustment_form" model="ir.ui.view">
+            <field name="name">stocksense.adjustment.request.form</field>
+            <field name="model">stocksense.adjustment.request</field>
+            <field name="arch" type="xml">
+                <form string="Adjustment Request">
+                    <header>
+                        <button name="action_submit" string="Submit for Steward Review" type="object" invisible="state != 'draft'" class="btn-primary"/>
+                        <button name="action_approve" string="Approve Adjustment (Apply to Inventory)" type="object" invisible="state != 'pending_approval'" class="btn-success" groups="stocksense_hackathon.group_stocksense_manager"/>
+                        <button name="action_reject" string="Reject Adjustment" type="object" invisible="state != 'pending_approval'" class="btn-danger" groups="stocksense_hackathon.group_stocksense_manager"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,pending_approval,approved"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <span class="o_form_label">StockSense Inventory Adjustment</span>
+                            <h1><field name="name"/></h1>
+                        </div>
+                        <group>
+                            <group string="Adjustment Details">
+                                <field name="product_id" readonly="state != 'draft'"/>
+                                <field name="location_id" readonly="state != 'draft'"/>
+                                <field name="quantity_change" readonly="state != 'draft'"/>
+                                <field name="current_quantity"/>
+                                <field name="new_quantity"/>
+                                <field name="reason" readonly="state != 'draft'"/>
+                            </group>
+                            <group string="Steward Risk Intelligence">
+                                <field name="is_anomalous"/>
+                                <field name="risk_score"/>
+                                <field name="severity" widget="badge" decoration-danger="severity == 'critical'" decoration-warning="severity == 'high'"/>
+                                <field name="z_score"/>
+                                <field name="baseline_mean"/>
+                                <field name="baseline_std"/>
+                                <field name="watchlist_id"/>
+                                <field name="stock_move_id"/>
+                            </group>
+                        </group>
+                        <notebook invisible="not is_anomalous">
+                            <page string="Steward Explanation &amp; Evidence">
+                                <group>
+                                    <field name="explanation" readonly="1"/>
+                                    <field name="evidence" readonly="1"/>
+                                    <field name="recommended_action" readonly="1"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_stocksense_adjustment" model="ir.actions.act_window">
+            <field name="name">Inventory Adjustments</field>
+            <field name="res_model">stocksense.adjustment.request</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <record id="action_stocksense_adjustment_pending" model="ir.actions.act_window">
+            <field name="name">Pending Manager Reviews</field>
+            <field name="res_model">stocksense.adjustment.request</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('state', '=', 'pending_approval')]</field>
+        </record>
+
+        <!-- ========================================== -->
+        <!-- 3. BASELINES & RULE CONFIGURATIONS         -->
+        <!-- ========================================== -->
+        <record id="view_stocksense_baseline_tree" model="ir.ui.view">
+            <field name="name">stocksense.baseline.stat.tree</field>
+            <field name="model">stocksense.baseline.stat</field>
+            <field name="arch" type="xml">
+                <tree string="Baseline Statistics">
+                    <field name="metric_type"/>
+                    <field name="product_id"/>
+                    <field name="location_id"/>
+                    <field name="mean_value"/>
+                    <field name="std_value"/>
+                    <field name="sample_count"/>
+                    <field name="last_computed"/>
+                    <field name="active" widget="boolean_toggle"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="action_stocksense_baseline" model="ir.actions.act_window">
+            <field name="name">Baseline Statistics</field>
+            <field name="res_model">stocksense.baseline.stat</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <record id="view_stocksense_rule_config_tree" model="ir.ui.view">
+            <field name="name">stocksense.rule.config.tree</field>
+            <field name="model">stocksense.rule.config</field>
+            <field name="arch" type="xml">
+                <tree string="Rule Configurations">
+                    <field name="name"/>
+                    <field name="rule_type"/>
+                    <field name="sensitivity_threshold"/>
+                    <field name="min_sample_size"/>
+                    <field name="dismiss_streak"/>
+                    <field name="active" widget="boolean_toggle"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="action_stocksense_rule_config" model="ir.actions.act_window">
+            <field name="name">Rule Configurations</field>
+            <field name="res_model">stocksense.rule.config</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+    </data>
+</odoo>

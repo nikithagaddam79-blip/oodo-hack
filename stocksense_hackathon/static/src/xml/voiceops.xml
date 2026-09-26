@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+
+    <!-- Systray Top Bar Trigger -->
+    <t t-name="stocksense.VoiceOpsSystray">
+        <div class="o_stocksense_voiceops_systray">
+            <button class="ss-mic-btn" t-att-class="{'listening': state.isListening}" t-on-click="openVoiceOps" title="VoiceOps AI Warehouse Assistant">
+                <i class="fa fa-microphone"/>
+                <span>VoiceOps</span>
+            </button>
+            <VoiceOpsModal state="state" closeModal="() => this.closeModal()" t-if="state.isOpen"/>
+        </div>
+    </t>
+
+    <!-- VoiceOps Interactive Modal -->
+    <t t-name="stocksense.VoiceOpsModal">
+        <div class="ss-modal-overlay">
+            <div class="ss-modal-container">
+                <div class="ss-modal-header">
+                    <div class="d-flex align-items-center gap-3">
+                        <img src="/stocksense_hackathon/static/src/img/stocksense_logo.png" 
+                             alt="StockSense" 
+                             style="max-height: 28px; background: rgba(255,255,255,0.95); padding: 2px 8px; border-radius: 6px;"/>
+                        <h4>StockSense VoiceOps</h4>
+                    </div>
+                    <span class="ss-brand-badge">TrueStock Co.</span>
+                    <button class="btn btn-sm btn-link text-white text-decoration-none" t-on-click="closeModal">
+                        <i class="fa fa-times fa-lg"/>
+                    </button>
+                </div>
+
+                <div class="ss-modal-body">
+                    <!-- Stage 1: Input / Listening -->
+                    <div t-if="state.step === 'input'">
+                        <div class="ss-mic-stage">
+                            <div class="ss-mic-halo">
+                                <button class="ss-large-mic" t-att-class="{'listening': state.isListening}" t-on-click="toggleSpeechRecognition">
+                                    <i class="fa" t-att-class="state.isListening ? 'fa-stop' : 'fa-microphone'"/>
+                                </button>
+                            </div>
+
+                            <t t-if="state.isListening">
+                                <div class="d-flex flex-column align-items-center gap-2">
+                                    <div class="ss-equalizer">
+                                        <div class="ss-equalizer-bar"/>
+                                        <div class="ss-equalizer-bar"/>
+                                        <div class="ss-equalizer-bar"/>
+                                        <div class="ss-equalizer-bar"/>
+                                        <div class="ss-equalizer-bar"/>
+                                    </div>
+                                    <span class="text-danger fw-bold small">Listening... Speak warehouse command now.</span>
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <p class="text-muted small mb-0">
+                                    Click the microphone to speak, or type a warehouse instruction below.
+                                </p>
+                            </t>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="input-group input-group-lg shadow-sm">
+                                <span class="input-group-text bg-white border-end-0 text-muted">
+                                    <i class="fa fa-terminal"/>
+                                </span>
+                                <input type="text" class="form-control border-start-0 ps-1" 
+                                       t-model="state.transcript" 
+                                       placeholder="e.g. Receive 50 Steel Rods from Vendor Alpha"
+                                       t-on-keydown="onInputKeydown"/>
+                            </div>
+                        </div>
+
+                        <!-- Quick Test Chips -->
+                        <div class="mb-3">
+                            <div class="small fw-bold text-muted text-uppercase mb-2 fs-7">
+                                Quick Warehouse Commands:
+                            </div>
+                            <div class="ss-chips-row">
+                                <span class="ss-chip" t-on-click="() => this.applySuggestion('Receive 50 Steel Rods from Vendor Alpha')">
+                                    <i class="fa fa-truck me-1 text-primary"/> Receive 50 Steel Rods
+                                </span>
+                                <span class="ss-chip" t-on-click="() => this.applySuggestion('Move 50 Steel Rods from Main Warehouse to Rack B')">
+                                    <i class="fa fa-exchange me-1 text-success"/> Move 50 to Rack B
+                                </span>
+                                <span class="ss-chip" t-on-click="() => this.applySuggestion('How many Steel Rods do we have?')">
+                                    <i class="fa fa-search me-1 text-info"/> Query Steel Rods Stock
+                                </span>
+                                <span class="ss-chip" t-on-click="() => this.applySuggestion('Adjust Steel Rods by minus twenty because of damage')">
+                                    <i class="fa fa-shield me-1 text-danger"/> Adjust -20 (Security Anomaly)
+                                </span>
+                                <span class="ss-chip" t-on-click="() => this.applySuggestion('Why is Rack B flagged?')">
+                                    <i class="fa fa-question-circle me-1 text-warning"/> Why is Rack B flagged?
+                                </span>
+                                <span class="ss-chip" t-on-click="() => this.applySuggestion('Create a recount task for Rack B')">
+                                    <i class="fa fa-tasks me-1 text-secondary"/> Recount Rack B
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                            <div class="small text-muted">
+                                Press <kbd class="bg-light text-dark border">Enter</kbd> to submit
+                            </div>
+                            <button class="btn btn-primary px-4 fw-bold shadow-sm" t-on-click="processInput" t-att-disabled="!state.transcript.trim() || state.isProcessing">
+                                <t t-if="state.isProcessing">
+                                    <i class="fa fa-spinner fa-spin me-1"/> Analyzing Intent...
+                                </t>
+                                <t t-else="">
+                                    <i class="fa fa-bolt me-1"/> Process Command
+                                </t>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Stage 2: Confirmation & Steward Gate -->
+                    <div t-elif="state.step === 'confirm'">
+                        <div class="ss-operation-card">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <span class="badge bg-primary text-uppercase fs-7">Operation Proposal</span>
+                            </div>
+                            <div class="ss-op-title">
+                                <t t-esc="state.actionTitle"/>
+                            </div>
+                            <div class="text-muted small">
+                                <t t-esc="state.actionDetails"/>
+                            </div>
+                        </div>
+
+                        <!-- Stewardship Warning Box (If Anomalous) -->
+                        <div t-if="state.isAnomalous" class="ss-steward-alert-box">
+                            <div class="ss-alert-title">
+                                <i class="fa fa-shield"/>
+                                <span>ZERO-TRUST GATE: SUSPICIOUS ANOMALY INTERCEPTED</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <span class="ss-z-chip high"><t t-esc="state.zScore"/>σ Outlier</span>
+                                <span class="badge bg-danger text-uppercase">Risk Score: <t t-esc="state.riskScore"/>/100 (<t t-esc="state.severity"/>)</span>
+                            </div>
+                            <div class="small text-dark mb-2">
+                                <t t-esc="state.explanation"/>
+                            </div>
+                            <div class="ss-alert-evidence">
+                                <t t-esc="state.evidence"/>
+                            </div>
+                            <div class="mt-3 text-danger small fw-bold">
+                                <i class="fa fa-lock me-1"/> Direct stock mutation halted. Must be submitted for Manager Approval.
+                            </div>
+                        </div>
+
+                        <!-- Normal Confirmation Box -->
+                        <div t-else="" class="ss-steward-alert-box normal">
+                            <div class="ss-alert-title normal">
+                                <i class="fa fa-check-circle"/>
+                                <span>Steward Verification: Safe Operation</span>
+                            </div>
+                            <div class="small text-dark">
+                                Inventory movement complies with standard historical operating patterns and safety baselines.
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                            <button class="btn btn-outline-secondary px-3" t-on-click="cancelConfirmation">
+                                Cancel
+                            </button>
+                            <t t-if="state.isAnomalous">
+                                <button class="btn btn-danger px-4 fw-bold shadow-sm" t-on-click="executeOperation">
+                                    <i class="fa fa-shield me-1"/> Submit for Manager Review
+                                </button>
+                            </t>
+                            <t t-else="">
+                                <button class="btn btn-success px-4 fw-bold shadow-sm" t-on-click="executeOperation">
+                                    <i class="fa fa-check me-1"/> Confirm &amp; Execute
+                                </button>
+                            </t>
+                        </div>
+                    </div>
+
+                    <!-- Stage 3: Result / Message -->
+                    <div t-elif="state.step === 'result'">
+                        <div class="text-center py-4">
+                            <div class="mb-3">
+                                <i class="fa fa-4x" t-att-class="state.resultSuccess ? 'fa-check-circle text-success' : 'fa-times-circle text-danger'"/>
+                            </div>
+                            <h4 class="fw-bold text-dark mb-2">
+                                <t t-if="state.resultSuccess">Action Complete</t>
+                                <t t-else="">Execution Alert</t>
+                            </h4>
+                            <div class="text-muted px-3 mb-4" style="white-space: pre-line; line-height: 1.6; font-size: 14px;">
+                                <t t-esc="state.resultMessage"/>
+                            </div>
+                            <button class="btn btn-primary px-5 fw-bold" t-on-click="resetToInput">
+                                Continue
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+</templates>

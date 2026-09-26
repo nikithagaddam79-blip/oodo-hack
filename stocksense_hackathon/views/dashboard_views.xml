@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="action_stocksense_dashboard" model="ir.actions.client">
+            <field name="name">Steward Dashboard</field>
+            <field name="tag">stocksense_dashboard</field>
+        </record>
+    </data>
+</odoo>

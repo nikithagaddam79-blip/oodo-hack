@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_stocksense_baseline_stat_manager,stocksense.baseline.stat.manager,model_stocksense_baseline_stat,group_stocksense_manager,1,1,1,1
+access_stocksense_baseline_stat_user,stocksense.baseline.stat.user,model_stocksense_baseline_stat,group_stocksense_user,1,0,0,0
+access_stocksense_rule_config_manager,stocksense.rule.config.manager,model_stocksense_rule_config,group_stocksense_manager,1,1,1,1
+access_stocksense_rule_config_user,stocksense.rule.config.user,model_stocksense_rule_config,group_stocksense_user,1,0,0,0
+access_stocksense_watchlist_item_manager,stocksense.watchlist.item.manager,model_stocksense_watchlist_item,group_stocksense_manager,1,1,1,1
+access_stocksense_watchlist_item_user,stocksense.watchlist.item.user,model_stocksense_watchlist_item,group_stocksense_user,1,0,0,0
+access_stocksense_adjustment_request_manager,stocksense.adjustment.request.manager,model_stocksense_adjustment_request,group_stocksense_manager,1,1,1,1
+access_stocksense_adjustment_request_user,stocksense.adjustment.request.user,model_stocksense_adjustment_request,group_stocksense_user,1,1,1,0
